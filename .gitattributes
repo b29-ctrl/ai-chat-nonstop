@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.bat text eol=crlf
+*.vbs text eol=crlf
+*.command text eol=lf
+*.png binary
+*.ico binary
+*.sqlite3 binary

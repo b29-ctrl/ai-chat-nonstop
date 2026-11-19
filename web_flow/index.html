@@ -1,0 +1,42 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI聊不停 · AI 协作工作台</title>
+<meta name="description" content="AI聊不停 · 群聊驱动的人机协作工作台（演示版，虚构数据）">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="panel side" aria-label="侧边导航">
+    <div class="brand">
+      <div class="logo">AI</div>
+      <div>
+        <div class="nm">AI聊不停</div>
+        <div class="sb">AI 协作工作台 · v2.1</div>
+      </div>
+    </div>
+    <div class="nav" id="nav"></div>
+    <div class="foot"><span class="d"></span><span class="tx">本地服务正常 · 数据只在本机</span></div>
+    <div class="user-row">
+      <div class="av">林</div>
+      <div class="info">
+        <div class="n">林舟</div>
+        <div class="r">产品经理 · Admin</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="panel main" id="main"></main>
+</div>
+
+<div class="modal" id="modal"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="api.js?v=20261114-wkflow5"></script>
+<script src="app.js?v=20261114-wkflow5"></script>
+</body>
+</html>

@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI聊不停</title>
+<link rel="icon" type="image/png" href="logo-black-64.png" />
+<link rel="shortcut icon" href="favicon-black.ico" />
+<link rel="stylesheet" href="style.css?v=20261113-phase3" />
+<link rel="stylesheet" href="theme.css?v=20261113-avatar" />
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="logo"><img src="logo-black-64.png" srcset="logo-black-64.png 1x, logo-black-256.png 2x" alt="AI聊不停" /></div>
+      <div class="brand-text"><b>AI聊不停</b><small>本地版</small></div>
+    </div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="chat"><span>◉</span>沟通</button>
+      <button class="nav-item" data-view="projects"><span>👥</span>项目群 <span class="caret" id="projCaret" title="展开/折叠项目">▾</span></button>
+      <button class="side-new-project" id="btnSideNewProject" title="新建项目">＋ 新建项目</button>
+      <div class="side-projects" id="sideProjects"></div>
+      <button class="nav-item" data-view="adapters"><span>⚙</span>AI岗位</button>
+      <button class="nav-item" data-view="archive"><span>🗄</span>归档项目 <span class="count-badge hidden" id="archivedCount">0</span></button>
+    </nav>
+    <div class="side-foot">
+      <div class="health"><i id="healthDot"></i><span id="healthText">连接本地服务…</span></div>
+      <div class="tiny">127.0.0.1 · 数据只在本机</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <div class="title-wrap">
+        <h1 id="pageTitle">沟通</h1>
+        <p id="pageSub">和 AI 对话，顺便看工单流转</p>
+      </div>
+      <div class="top-actions">
+        <select id="projectSelect" class="project-select" title="当前项目"></select>
+        <button class="ghost" id="btnProjects" title="新建/重命名/添加 AI">项目管理</button>
+        <span class="chip" id="lastTick">最近 tick —</span>
+        <button class="ghost" id="btnRefresh">刷新</button>
+        <div class="me" title="本地主理人">主</div>
+      </div>
+    </header>
+
+    <section class="view" id="view-chat">
+      <div class="chat-shell">
+        <div class="chat-main">
+          <div class="targets" id="targets"></div>
+          <div class="chat-log" id="chatLog">
+            <div class="empty-chat">
+              <div class="empty-orb">◉</div>
+              <h2>从一个问题开始</h2>
+              <p>选一个 AI 岗位，发消息。WorkBuddy 会真实执行；COZE 走云端评审；演示岗位不需要 Key。</p>
+            </div>
+          </div>
+          <div class="chat-input" id="chatInput">
+            <div class="chat-meta">
+              <div class="chat-meta-left">
+                <label class="model-wrap" id="modelWrap">模型
+                  <select id="chatModel" title="WorkBuddy 模型"></select>
+                  <button id="btnModels" class="model-refresh" title="刷新 WorkBuddy 模型列表">↻</button>
+                </label>
+                <button class="ghost attach-btn" id="btnAttach" title="上传附件（图片/文件）">📎 附件</button>
+                <input type="file" id="fileInput" multiple hidden />
+              </div>
+              <label>关联工单
+                <select id="chatTicket"><option value="">不关联</option></select>
+              </label>
+              <span class="chat-status" id="chatStatus"></span>
+              <button class="ghost chat-search-btn" id="btnChatSearch" title="历史消息（可搜索）">历史记录</button>
+            </div>
+            <div class="attach-list" id="attachList"></div>
+            <textarea id="chatText" rows="3" placeholder="给 WorkBuddy 发消息…（Enter 发送，Shift+Enter 换行）"></textarea>
+            <div class="chat-send">
+              <span class="hint">内容会发给对应 AI 服务；工单台账只在本机</span>
+              <button class="primary" id="btnSend">发送</button>
+            </div>
+          </div>
+        </div>
+        <aside class="chat-side">
+          <div class="card">
+            <h3>当前 AI 岗位</h3>
+            <div id="chatAdapterInfo" class="muted">—</div>
+          </div>
+          <div class="card">
+            <h3>快捷工单</h3>
+            <div id="chatTickets" class="mini-list"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="view hidden" id="view-projects">
+      <div class="project-bar">
+        <div class="project-head">
+          <b id="projectTitle">项目群</b>
+          <span id="projectMeta" class="muted"></span>
+        </div>
+        <div class="project-actions">
+          <span id="projectStatus" class="badge 已验">进行中</span>
+          <button class="ghost" id="btnPauseProject">暂停</button>
+          <button class="ghost" id="btnResumeProject">继续</button>
+          <button class="danger-btn" id="btnEmergencyStop" title="立即终止派发器，进行中工单转失败">急停</button>
+          <button class="ghost" id="btnProjectMembers">AI 成员</button>
+          <button class="ghost" id="btnProjectRoles">岗位编制</button>
+        </div>
+      </div>
+      <div class="project-layout">
+        <div class="card feed-card">
+          <div class="feed-head">
+            <h3>项目群聊</h3>
+            <div class="feed-tools">
+              <button class="ghost" id="btnGroupSearch">历史记录</button>
+              <button class="ghost" id="btnGroupTimeline">时间轴</button>
+            </div>
+          </div>
+          <div class="group-feed group-chat" id="groupFeed"><div class="muted">暂无消息</div></div>
+          <div class="group-compose" id="groupCompose">
+            <div class="mention-pop hidden" id="mentionPop"></div>
+            <div class="attach-list" id="groupAttachList"></div>
+            <div class="group-inputline">
+              <button class="ghost attach-btn" id="btnGroupAttach" title="上传附件（图片/文件）">📎</button>
+              <input type="file" id="groupFileInput" multiple hidden />
+              <input id="groupText" class="group-text" type="text" autocomplete="off" placeholder="发消息…" />
+              <button class="primary group-send-btn" id="btnGroupSend">发送</button>
+            </div>
+            <div class="group-foot"><span class="hint" id="groupStatus"></span></div>
+          </div>
+        </div>
+        <div class="card ticket-pane">
+          <div class="ticket-pane-head">
+            <div class="ticket-head-main">
+              <div class="ticket-title-line"><h3 style="margin:0">工单</h3><span id="ticketWho" class="ticket-who">工作中：—</span></div>
+              <div class="ticket-progress"><div class="ticket-progress-track"><i id="ticketProgressBar"></i></div><span id="ticketProgressText">0/0</span></div>
+            </div>
+            <span class="hint" id="ticketPaneCount"></span>
+          </div>
+          <div class="signoff-filter-line">
+            <button class="ghost signoff-filter" id="btnPendingSignoff" title="只看待我签收的工单">待签收 0</button>
+            <span class="hint" id="signoffFilterHint">点击只看「待验」单，再点恢复全部</span>
+          </div>
+          <div class="stats" id="stats"></div>
+          <div class="ticket-table-wrap">
+            <table class="tickets" style="width:100%;table-layout:fixed">
+              <thead><tr><th>单号</th><th>工单</th><th>状态</th></tr></thead>
+              <tbody id="ticketRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view hidden" id="view-adapters">
+      <div class="adapter-toolbar">
+        <button class="primary" id="btnAddAI">+ 新增 AI</button>
+        <button class="ghost" id="btnExportRoster">导出 AI 岗位配置</button>
+        <span class="hint">导出脱敏 ai-roster/v1，不含 Key / 命令 / 本机路径</span>
+      </div>
+      <div class="cards" id="adapterCards"></div>
+      <div class="card role-coverage-card" id="roleCoverageCard">
+        <div class="coverage-head">
+          <h3>岗位覆盖</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="ghost" id="btnCoverageEmpty">显示空层</button>
+            <button class="ghost" id="btnRoleCoverageEdit">岗位编制</button>
+          </div>
+        </div>
+        <p class="hint" style="margin:2px 0 10px">对应项目岗位编制：空岗显示“未配置”或“必须指定”，点右边按钮去改人。</p>
+        <div id="roleCoverage" class="coverage-grid">加载中…</div>
+      </div>
+      <div class="card coze-card" id="cozeCard">
+        <div class="coze-head">
+          <h3>COZE 当前 Bot 模型</h3>
+          <button class="model-refresh" id="btnCozeRefresh" title="刷新 COZE Bot 信息">↻</button>
+        </div>
+        <div id="cozeInfo" class="muted">加载中…</div>
+        <p class="hint" style="margin:10px 0 0">扣子模型绑定在 Bot 上，不能按对话切换。换模型：扣子后台改 Bot → 发布 → 点 ↻ 刷新。</p>
+      </div>
+      <div class="card info-card">
+        <h3>AI岗位怎么配</h3>
+        <p>这是「通用版」：AI 岗位只是配置项，不写死产品名。后续把 <code>派发器.py</code> 接进同一张 SQLite 台账，这里就会实时显示真实流转。</p>
+        <p class="hint">AI 名称可**双击**直接改（写回 <code>配置.json</code> 的 <code>label</code>）。</p>
+        <ul>
+          <li><b>WorkBuddy</b>：process 型，CodeBuddy CLI；API Key 放本机 secrets 文件。</li>
+          <li><b>COZE</b>：http 型，云端评审；Token 只存本机。</li>
+          <li><b>DSH / CODEX</b>：process 型，按本机 CLI 路径接入。</li>
+        </ul>
+        <h3 style="margin-top:14px">新增 AI 的流程</h3>
+        <p>点上方「+ 新增 AI」→ 填名称 / 类型 / 默认岗位 / 命令 → 保存（写前自动备份 <code>配置.json.bak.&lt;时间戳&gt;</code>）→ 卡片立即出现，<b>无需重启</b>。新 AI <b>不自动加入任何项目</b>：去「项目管理 → AI 成员」勾选后，默认岗位作为初始值自动落位，可在「岗位编制」覆盖。Key/Token 只填本机密钥文件路径，禁止粘贴明文；导出文件不含 Key、命令、本机路径。</p>
+        <h3 style="margin-top:14px">技能怎么装（通用规则）</h3>
+        <p>技能装到执行端，不装进调度台。判定顺序：<b>技能发现路径 → 是否可见 → none / prompt / path / api / impossible → 实测「使用技能 X」</b>。完整规则见随包分发的 <code>技能桥接规则.md</code>。</p>
+      </div>
+    </section>
+
+    <section class="view hidden" id="view-archive" data-view-panel="archive">
+      <div class="card archive-head-card">
+        <h2 style="margin:0 0 6px">归档项目</h2>
+        <p class="hint" style="margin:0">归档不删除数据；恢复后回到项目列表并恢复派单（running）。归档期间项目状态置为暂停，输入框与派单入口自然禁用。</p>
+      </div>
+      <div class="card ticket-pane archive-pane">
+        <div class="ticket-pane-head">
+          <div class="ticket-head-main">
+            <div class="ticket-title-line"><h3 style="margin:0">已归档</h3><span id="archivePaneCount" class="ticket-who">0 个</span></div>
+          </div>
+          <button class="ghost" id="btnArchiveRefresh">刷新</button>
+        </div>
+        <div class="archive-table-wrap" id="archiveList"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal hidden" id="modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>新建工单</h2>
+      <button class="icon" id="btnCloseModal">×</button>
+    </div>
+    <div class="form">
+      <label>工单标题<input id="fTitle" maxlength="120" placeholder="例如：阶段3 构建与真机冒烟" /></label>
+      <div class="form-row">
+        <label>收件人
+          <select id="fRecipient"><option>豆包</option><option>CODEX</option><option>DSH</option><option>用户</option></select>
+        </label>
+        <label>执行端
+          <select id="fExecutor"><option>WORKBUDDY</option><option>COZE</option><option>CODEX</option><option>DSH</option><option></option></select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>门<select id="fGate"><option value="无">无</option><option value="门①">方案评审</option><option value="门②">代码审核</option><option value="门③">构建自检</option><option value="门④">独立验收</option><option value="门⑤">终验发版</option></select></label>
+        <label>优先级<select id="fPriority"><option>P1</option><option>P0</option><option>P2</option></select></label>
+      </div>
+      <label id="fModelWrap">执行模型（仅 WorkBuddy）
+        <select id="fModel"></select>
+      </label>
+      <label>备注<textarea id="fNote" rows="3" placeholder="给派发器的补充说明（可选）"></textarea></label>
+      <div class="modal-foot">
+        <span class="hint">写入本机 SQLite；真实派发器接入后自动纳入流转</span>
+        <button class="primary" id="btnCreate">创建工单</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="projectModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>项目管理</h2>
+      <button class="icon" id="btnCloseProjectModal">×</button>
+    </div>
+    <div class="form">
+      <label>项目存储位置（S4 目录）
+        <input id="pDir" maxlength="500" placeholder="例如：G:\项目\一卡通" />
+      </label>
+      <div class="form-row">
+        <button class="ghost" id="btnSaveDir">保存路径</button>
+        <span class="hint">保存后，@主理人 让它先读该目录下的 S4 文件 / 00_环境.md，再派单。</span>
+      </div>
+      <label class="ai-check"><input type="checkbox" id="pInjectProfile" /> 自动注入项目背景（读取 00_环境.md 注入群聊/派单，可关）</label>
+      <h3 style="margin:14px 0 8px">群内 AI</h3>
+      <div id="pMemberChecks" class="member-checks"></div>
+      <div class="form-error hidden" id="memberStatus"></div>
+      <div class="modal-foot">
+        <span class="hint">新加入的 AI 会继承默认岗位；岗位已有人不覆盖，冲突则整单不保存</span>
+        <button class="primary" id="btnSaveMembers">保存成员</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="roleModal">
+  <div class="modal-card role-modal-card">
+    <div class="modal-head">
+      <h2>岗位编制</h2>
+      <button class="icon" id="btnCloseRoleModal">×</button>
+    </div>
+    <p class="hint" style="margin:0 0 10px">核心岗位优先。大BOSS=你（主理人）；DSH=调度协调 AI，不是签字人。空岗不会自动“主理人兼”，需要时再指定。独立验收必须非写码/构建者；只有你一个人时，可由你本人兼（单人模式，门④/门⑤分两次签）。虚线 AI 尚未入群，选中保存后会自动加入项目群。</p>
+    <div class="role-toolbar">
+      <button class="ghost" id="btnRoleRecommend">按推荐编制</button>
+      <button class="ghost" id="btnRoleShowAll">显示全部岗位</button>
+      <span id="roleSummary" class="hint"></span>
+    </div>
+    <div class="role-layers" id="roleLayers"></div>
+    <div class="modal-foot">
+      <span class="hint" id="roleStatus"></span>
+      <button class="primary" id="btnSaveRoles">保存岗位</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="aiModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>新增 AI</h2>
+      <button class="icon" id="btnCloseAIModal">×</button>
+    </div>
+    <div class="form">
+      <label>名称 / label（必填）<input id="aiLabel" maxlength="60" placeholder="例如：CODEX 写码" /></label>
+      <div class="form-row">
+        <label>ID（可选，小写 kebab-case）<input id="aiId" maxlength="48" placeholder="留空则按名称生成" /></label>
+        <label>类型 / type（必填）
+          <select id="aiType">
+            <option value="process">process</option>
+            <option value="workbuddy">workbuddy</option>
+            <option value="coze">coze</option>
+            <option value="demo">demo</option>
+            <option value="human">human</option>
+          </select>
+        </label>
+      </div>
+      <label>默认岗位 / role_id（必填，来自 岗位目录.json）<select id="aiRole"></select></label>
+      <label>CLI / command（process 必填；每行一个参数，或粘贴 JSON 数组）
+        <textarea id="aiCommand" rows="3" placeholder='["python", "-c", "print(1)"]'></textarea>
+      </label>
+      <label class="ai-check" id="aiAllowWrap">
+        <input type="checkbox" id="aiAllowExecutable" />
+        允许执行这个程序（加入执行白名单）
+      </label>
+      <p class="hint">默认不勾。command[0] 不在 security.process_allowed_executables 时，不勾选会拒绝保存并给出错误码 process_not_whitelisted。</p>
+      <div class="form-row">
+        <label>模型 / default_model（可选）<input id="aiModel" maxlength="60" placeholder="例如 deepseek-v4-pro" /></label>
+        <label>启用 / enabled
+          <select id="aiEnabled"><option value="true">启用</option><option value="false">停用</option></select>
+        </label>
+      </div>
+      <label>Key/Token：本机密钥文件路径（可选，禁止明文）
+        <input id="aiKeyPath" maxlength="300" placeholder="例如 C:\secrets\WK.txt（只填路径，不填 Key 内容）" />
+      </label>
+      <p class="hint">一个 AI 只有一个默认岗位；新 AI 不自动加入任何项目。保存前自动备份 配置.json.bak.&lt;时间戳&gt;。</p>
+      <div class="form-error hidden" id="aiError"></div>
+      <div class="modal-foot">
+        <span class="hint">只写本机配置；导出文件不含命令 / 路径 / Key</span>
+        <button class="primary" id="btnSaveAI">保存 AI</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="signoffModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>确认签收</h2>
+      <button class="icon" id="btnCloseSignoffModal" aria-label="关闭">×</button>
+    </div>
+    <div class="form">
+      <div class="signoff-meta">
+        <div><b>单号</b><span id="soTicketId"></span></div>
+        <div><b>标题</b><span id="soTitle"></span></div>
+        <div><b>门禁</b><span id="soGate"></span></div>
+        <div><b>执行端</b><span id="soExecutor"></span></div>
+      </div>
+      <div class="so-task">
+        <b>任务</b>
+        <div id="soTask" class="muted"></div>
+      </div>
+      <div class="signoff-reply">
+        <b>回件摘要</b>
+        <div id="soReply" class="muted"></div>
+      </div>
+      <label>签收人<input id="soSigner" maxlength="40" placeholder="主理人" /></label>
+      <label>备注（可选）<textarea id="soNote" rows="2" placeholder="签收说明，可留空"></textarea></label>
+      <div class="so-basis">
+        <b>签收依据</b>
+        <div id="soBasis" class="muted"></div>
+      </div>
+      <p class="hint">签收后状态变为「已验」；签收人须在 security.allowed_signers 名单内。回车不会直接签收。</p>
+      <div class="modal-foot">
+        <button class="ghost" id="btnSignoffCancel">取消</button>
+        <button class="primary" id="btnSignoffConfirm">确认签收</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="advanceConfirmModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>演示推进确认</h2>
+      <button class="icon" id="btnCloseAdvanceModal" aria-label="关闭">×</button>
+    </div>
+    <div class="form">
+      <p class="advance-lead">仅演示推进，不产生真实签收／不写真实签收记录；真实流程由派发器写入。</p>
+      <p class="advance-warn hidden" id="advanceWarn">注意：此步将把状态推进到「已验」，并自动补一条「演示签收」记录，仅用于演示。</p>
+      <div class="signoff-meta">
+        <div><b>单号</b><span id="advTicketId"></span></div>
+        <div><b>当前状态</b><span id="advStatus"></span></div>
+        <div><b>推进后</b><span id="advNext"></span></div>
+      </div>
+      <div class="modal-foot">
+        <button class="ghost" id="btnAdvanceCancel">取消</button>
+        <button class="primary" id="btnAdvanceConfirm">确认演示推进</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="sendConfirmModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>发送前确认</h2>
+      <button class="icon" id="btnCloseSendConfirm">×</button>
+    </div>
+    <div class="form">
+      <div class="form-row"><b>消息</b></div>
+      <div id="sendConfirmMsg" class="confirm-msg"></div>
+      <div class="form-row"><b>将发给</b></div>
+      <div id="sendConfirmTargets" class="confirm-targets"></div>
+      <label>关联工单
+        <select id="sendConfirmTicket"><option value="">不关联</option></select>
+      </label>
+      <label>期望结果（可选，仅提示 AI，不发往接口）
+        <textarea id="sendConfirmExpect" rows="2" placeholder="例如：给出可运行的改动 diff，不擅自执行"></textarea>
+      </label>
+      <p class="hint confirm-boundary">边界：只发到本项目群；AI 不跨岗签门；最终验收须大BOSS 拍板；不泄露 Key/Token/客户凭据。</p>
+      <div class="modal-foot">
+        <label class="ai-check"><input type="checkbox" id="sendConfirmRemember" /> 记住选择（以后不再确认）</label>
+        <div style="display:flex;gap:8px">
+          <button class="ghost" id="btnSendSkip">本次跳过</button>
+          <button class="primary" id="btnSendConfirm">确认发送</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="searchModal">
+  <div class="modal-card search-card">
+    <div class="modal-head">
+      <h2 id="searchTitle">历史消息</h2>
+      <button class="icon" id="btnCloseSearch">×</button>
+    </div>
+    <div class="search-tabs">
+      <button class="search-tab active" data-mode="search">按关键词</button>
+      <button class="search-tab" data-mode="timeline">按时间</button>
+    </div>
+    <div class="search-controls" id="searchControls">
+      <input id="searchKeyword" class="search-kw" type="text" placeholder="关键词（留空则只按时间/角色）" />
+      <select id="searchRange" class="search-range" title="时间范围">
+        <option value="all">全部</option>
+        <option value="today">今天</option>
+        <option value="7">近 7 天</option>
+        <option value="30">近 30 天</option>
+        <option value="custom">自定义</option>
+      </select>
+      <select id="searchRole" class="search-role" title="角色筛选">
+        <option value="">全部角色</option>
+        <option value="user">我 / 用户</option>
+        <option value="assistant">AI</option>
+        <option value="system">系统事件</option>
+      </select>
+      <div class="search-custom hidden" id="searchCustom">
+        <input id="searchSince" type="date" title="起始日期" />
+        <span class="muted">至</span>
+        <input id="searchUntil" type="date" title="结束日期" />
+      </div>
+      <button class="primary" id="btnDoSearch">查询</button>
+    </div>
+    <div class="search-body">
+      <div class="search-list" id="searchList"></div>
+    </div>
+    <div class="search-foot">
+      <span id="searchCount" class="muted"></span>
+      <div class="search-pager">
+        <button class="ghost" id="btnSearchPrev">上一页</button>
+        <button class="ghost" id="btnSearchNext">下一页</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="ctx-menu hidden" id="ctxMenu"><button id="ctxCopy">复制选中</button></div>
+<div class="ctx-menu hidden" id="projCtxMenu"></div>
+<div class="modal hidden" id="projRenameModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>重命名项目</h2>
+      <button class="icon" id="btnCloseProjRename">×</button>
+    </div>
+    <div class="form">
+      <label>项目名称（1–80 字）<input id="projRenameInput" maxlength="80" placeholder="输入新名称" /></label>
+      <div class="form-error hidden" id="projRenameError"></div>
+      <div class="modal-foot">
+        <span class="hint">只改显示名，不动工单/群聊数据</span>
+        <button class="ghost" id="btnCancelProjRename">取消</button>
+        <button class="primary" id="btnSaveProjRename">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="app.js?v=20261113-avatar"></script>
+<script src="theme.js?v=20261113-avatar"></script>
+<script>
+/* 首次运行引导：装完第一次打开，先自检再让人开工。
+   检测只读，点「开始使用」才写 onboarded 标记。 */
+(function () {
+  var T = new URLSearchParams(location.search).get("token") || localStorage.getItem("deck_token") || "";
+  var H = { "X-Deck-Token": T, "Content-Type": "application/json" };
+
+  function el(tag, cls, txt) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  var CSS = [
+    "#onboardMask{position:fixed;inset:0;background:rgba(10,16,24,.72);z-index:9000;display:none;",
+    "align-items:center;justify-content:center;padding:24px;font-family:inherit}",
+    "#onboardMask.on{display:flex}",
+    "#onboardCard{width:min(760px,94vw);max-height:88vh;overflow:auto;background:#fff;border-radius:12px;",
+    "box-shadow:0 18px 60px rgba(0,0,0,.28);padding:22px 24px}",
+    "#onboardCard h2{margin:0 0 6px;font-size:19px}",
+    "#onboardCard .sub{color:#5b6675;font-size:13px;margin-bottom:14px}",
+    ".ob-chk{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #eef1f4}",
+    ".ob-dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex:0 0 9px}",
+    ".ob-ok{background:#0f7b67}.ob-warn{background:#c78b1f}.ob-fail{background:#c8443a}",
+    ".ob-body{flex:1;min-width:0}",
+    ".ob-title{font-size:13.5px;font-weight:600;color:#1d2733}",
+    ".ob-detail{font-size:12px;color:#5b6675;white-space:pre-wrap;word-break:break-all;margin-top:2px}",
+    ".ob-fix{font-size:12px;color:#8a5a12;margin-top:3px}",
+    ".ob-step{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #eef1f4}",
+    ".ob-no{width:22px;height:22px;border-radius:50%;background:#232e35;color:#fff;font-size:12px;",
+    "display:flex;align-items:center;justify-content:center;flex:0 0 22px}",
+    "#onboardFoot{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}",
+    "#onboardFoot button{border:0;border-radius:8px;padding:9px 18px;font-size:13.5px;cursor:pointer}",
+    "#obSkip{background:#eef1f4;color:#3a4652}#obGo{background:#0f7b67;color:#fff}",
+    "#obBanner{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:8500;display:none;",
+    "align-items:center;gap:12px;background:#fff7e6;border:1px solid #e5c07b;border-radius:10px;",
+    "padding:9px 14px;font-size:13px;color:#7a5310;box-shadow:0 8px 24px rgba(0,0,0,.14)}",
+    "#obBanner.on{display:flex}#obBanner button{border:0;background:transparent;color:#7a5310;cursor:pointer}",
+  ].join("");
+
+  var style = document.createElement("style");
+  style.textContent = CSS;
+  document.head.appendChild(style);
+
+  var mask = el("div"); mask.id = "onboardMask";
+  var card = el("div"); card.id = "onboardCard";
+  mask.appendChild(card);
+  document.body.appendChild(mask);
+
+  function render(rep, blocking) {
+    card.innerHTML = "";
+    card.appendChild(el("h2", null, blocking ? "首次使用 · 先花一分钟检查" : "配置还有问题"));
+    card.appendChild(el("p", "sub", rep.app + " v" + rep.version + " ｜ 检测时间 " + (rep.generated_at || "")));
+
+    var s = rep.summary || {};
+    var line = el("p", "sub",
+      "通过 " + (s.ok || 0) + " 项，提醒 " + (s.warn || 0) + " 项，需要处理 " + (s.fail || 0) + " 项");
+    if (s.fail > 0) { line.style.color = "#c8443a"; line.style.fontWeight = "600"; }
+    card.appendChild(line);
+
+    (rep.checks || []).forEach(function (c) {
+      var row = el("div", "ob-chk");
+      var dot = el("div", "ob-dot " + (c.status === "ok" ? "ob-ok" : c.status === "warn" ? "ob-warn" : "ob-fail"));
+      var b = el("div", "ob-body");
+      b.appendChild(el("div", "ob-title", c.title));
+      if (c.detail) b.appendChild(el("div", "ob-detail", c.detail));
+      if (c.fix) b.appendChild(el("div", "ob-fix", "怎么修：" + c.fix));
+      row.appendChild(dot); row.appendChild(b);
+      card.appendChild(row);
+    });
+
+    var h3 = el("h2", null, "接下来怎么用");
+    h3.style.fontSize = "16px"; h3.style.margin = "18px 0 4px";
+    card.appendChild(h3);
+    (rep.steps || []).forEach(function (st) {
+      var row = el("div", "ob-step");
+      row.appendChild(el("div", "ob-no", String(st.no)));
+      var b = el("div", "ob-body");
+      b.appendChild(el("div", "ob-title", st.title));
+      b.appendChild(el("div", "ob-detail", st.body));
+      if (st.verify) b.appendChild(el("div", "ob-fix", "确认：" + st.verify));
+      row.appendChild(b);
+      card.appendChild(row);
+    });
+
+    var foot = el("div"); foot.id = "onboardFoot";
+    var skip = el("button", null, "先关掉"); skip.id = "obSkip";
+    var go = el("button", null, blocking ? "开始使用" : "知道了"); go.id = "obGo";
+    foot.appendChild(skip); foot.appendChild(go);
+    card.appendChild(foot);
+
+    skip.onclick = function () { mask.classList.remove("on"); };
+    go.onclick = function () {
+      fetch("/api/onboarding/done", { method: "POST", headers: H, body: "{}" })
+        .then(function () { mask.classList.remove("on"); })
+        .catch(function () { mask.classList.remove("on"); });
+    };
+  }
+
+  function banner(failCount) {
+    var b = el("div"); b.id = "obBanner";
+    b.appendChild(el("span", null, "配置还有 " + failCount + " 项需要处理，有工单可能发不出去。"));
+    var more = el("button", null, "查看");
+    var close = el("button", null, "×");
+    b.appendChild(more); b.appendChild(close);
+    more.onclick = function () { mask.classList.add("on"); };
+    close.onclick = function () { b.classList.remove("on"); };
+    document.body.appendChild(b);
+    b.classList.add("on");
+  }
+
+  function boot() {
+    fetch("/api/onboarding", { headers: H })
+      .then(function (r) { return r.json(); })
+      .then(function (rep) {
+        if (!rep || rep.ok === false) return;
+        var fail = (rep.summary || {}).fail || 0;
+        if (rep.first_run) { render(rep, true); mask.classList.add("on"); }
+        else if (fail > 0) { render(rep, false); banner(fail); }
+      })
+      .catch(function () { /* 自检不可用不影响主界面 */ });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else setTimeout(boot, 60);
+})();
+</script>
+</body>
+</html>

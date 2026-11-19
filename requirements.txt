@@ -1,0 +1,9 @@
+# 后端零第三方依赖：只用 Python 标准库（http.server / sqlite3 / urllib / argparse）。
+# 所以这个文件默认是空的，不需要 pip install -r。
+#
+# 唯一可选依赖：pywebview（打开原生窗口）。不装也能用：
+# 启动器会自动退回 Edge 应用窗口，再不行退回系统浏览器。
+#
+#   pip install pywebview
+#
+# 或者直接运行 安装依赖.command（macOS / Linux）。

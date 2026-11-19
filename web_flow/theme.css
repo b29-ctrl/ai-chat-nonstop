@@ -1,0 +1,287 @@
+/* ===================================================================
+   AI聊不停 · Organic Flow 主题层（前端版 v1 · 2026-11-13）
+   -------------------------------------------------------------------
+   来源：交付_20261113_UIUX改版/style.merged.css（v3.2~v3.9 收口结论已烘焙，
+        不再需要 !important 覆盖层）
+   约束：:root 外零十六进制；颜色 / 字号 / 圆角 / 阴影 / 间距均走变量。
+   用法：<link rel="stylesheet" href="theme.css"> 本地同目录，离线可用。
+   =================================================================== */
+:root{
+  /* ---- 底色 ---- */
+  --white:#FFFFFF;
+  --bg:#FFFEF7;
+  --bg-alt:#FFF9F0;
+  --bg-third:#F0FFF8;
+
+  /* ---- 文本 ---- */
+  --ink:#1A1A2E;
+  --ink-2:#2D2D44;
+  --ink-deep:#3C3C4A;
+  --muted:#414154;
+
+  /* ---- 品牌主色 ---- */
+  --coral:#FF6B6B;
+  --coral-hover:#EE5A5A;
+  --coral-light:#FFA5A5;
+  --coral-soft:rgba(255,107,107,.12);
+  --coral-deep:#C43D3D;
+  --teal:#4ECDC4;
+  --teal-soft:rgba(78,205,196,.18);
+  --teal-deep:#0F766E;
+  --lavender:#A78BFA;
+  --lavender-soft:rgba(167,139,250,.18);
+  --violet-deep:#6D28D9;
+  --peach:#FFE66D;
+  --peach-soft:rgba(255,230,109,.25);
+
+  /* ---- 语义色（浅底 + 深字一档）---- */
+  --success:#22C55E;
+  --success-soft:rgba(34,197,94,.15);
+  --green-deep:#15803D;
+  --warning:#F59E0B;
+  --warning-soft:rgba(245,158,11,.18);
+  --amber-deep:#B45309;
+  --danger:#EF4444;
+  --danger-soft:rgba(239,68,68,.15);
+  --red-deep:#B91C1C;
+
+  /* ---- 聊天气泡（加深珊瑚，保白字 5.4:1）---- */
+  --bubble-1:#C24A4A;
+  --bubble-2:#AD3B3B;
+
+  /* ---- 面与线 ---- */
+  --surface:rgba(255,255,255,.72);
+  --surface-solid:rgba(255,255,255,.95);
+  --surface-hover:rgba(255,255,255,.6);
+  --surface-dim:rgba(255,255,255,.45);
+  --line:rgba(26,26,46,.07);
+  --line-2:rgba(92,92,114,.16);
+  --line-dash:rgba(92,92,114,.25);
+  --veil:rgba(26,26,46,.38);
+
+  /* ---- 圆角 ---- */
+  --radius-xs:8px;
+  --radius-s:12px;
+  --radius-m:16px;
+  --radius-l:22px;
+  --radius-xl:28px;
+  --radius-pill:999px;
+
+  /* ---- 阴影 ---- */
+  --shadow-soft:0 8px 32px rgba(26,26,46,.06),0 2px 8px rgba(26,26,46,.04);
+  --shadow-card:0 1px 4px rgba(26,26,46,.05);
+  --shadow-pop:0 24px 64px rgba(26,26,46,.22);
+  --shadow-focus:0 0 0 3px rgba(255,107,107,.18);
+
+  /* ---- 字号（下限 12px）---- */
+  --fs-12:12px;
+  --fs-13:13px;
+  --fs-bubble:13.5px;
+  --fs-14:14px;
+  --fs-15:15px;
+  --fs-17:17px;
+  --fs-18:18px;
+  --fs-20:20px;
+  --fs-24:24px;
+  --fs-32:32px;
+
+  /* ---- 间距 ---- */
+  --sp-1:4px;
+  --sp-2:8px;
+  --sp-3:12px;
+  --sp-4:16px;
+  --sp-5:20px;
+  --sp-6:24px;
+  --sp-8:32px;
+
+  /* ---- 布局 ---- */
+  --side-w:220px;
+  --rail-w:clamp(320px,26vw,390px);
+
+  /* ---- 动效 ---- */
+  --ease:cubic-bezier(.32,.72,.24,1);
+  --dur:.18s;
+}
+
+/* ===== 基础重置 ===== */
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  color:var(--ink);
+  font-family:"Noto Sans SC","Source Han Sans SC","HarmonyOS Sans SC","Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:var(--fs-13);
+  font-weight:400;
+  line-height:1.6;
+  letter-spacing:-.008em;
+  -webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 10%,rgba(255,107,107,.18) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 45% at 85% 90%,rgba(78,205,196,.22) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%,rgba(167,139,250,.1) 0%,transparent 70%),
+    linear-gradient(135deg,var(--bg),var(--bg-alt),var(--bg-third));
+  background-attachment:fixed;
+  padding:var(--sp-4);
+  overflow:hidden;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:var(--ink);border:none;background:none}
+button{cursor:pointer}
+textarea{cursor:text}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4,p{margin:0}
+ul{margin:0;padding-left:18px}
+svg{flex:none}
+::selection{background:var(--coral-soft);color:var(--ink)}
+:focus-visible{outline:none;box-shadow:var(--shadow-focus);border-radius:var(--radius-xs)}
+
+.num,.tid,.dtid,.td{font-variant-numeric:tabular-nums}
+.muted,.hint,.ts,.lb,.sb,.att,.meta-row .att,.foot{
+  text-shadow:1px 0 0 rgba(255,255,255,.9),-1px 0 0 rgba(255,255,255,.9),0 1px 0 rgba(255,255,255,.9),0 -1px 0 rgba(255,255,255,.9);
+}
+
+/* 滚动条：细、低对比 */
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-thumb{background:rgba(92,92,114,.18);border-radius:var(--radius-pill)}
+*::-webkit-scrollbar-thumb:hover{background:rgba(92,92,114,.32)}
+*::-webkit-scrollbar-track{background:transparent}
+
+/* ===== 面板 ===== */
+.panel{
+  background:var(--surface);
+  border-radius:var(--radius-xl);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  box-shadow:var(--shadow-soft);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  min-width:0;
+}
+
+/* ===== 状态 chip：全局药丸（实底 + 深一档字）===== */
+.cp{
+  display:inline-block;
+  border-radius:var(--radius-pill);
+  padding:2px 10px;
+  border:none;
+  font-size:var(--fs-12);
+  font-weight:600;
+  line-height:1.5;
+  text-align:center;
+  white-space:nowrap;
+  vertical-align:middle;
+  background:var(--lavender-soft);
+  color:var(--violet-deep);
+}
+.cp-p{background:var(--warning-soft);color:var(--amber-deep)}
+.cp-d{background:var(--coral-soft);color:var(--coral-deep)}
+.cp-r{background:var(--lavender-soft);color:var(--violet-deep)}
+.cp-v{background:var(--peach-soft);color:var(--amber-deep)}
+.cp-x{background:var(--success-soft);color:var(--green-deep)}
+.cp-f{background:var(--danger-soft);color:var(--red-deep)}
+
+/* ===== 轻量 badge（圆点/图标 + 文字）===== */
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:var(--fs-12);
+  font-weight:600;
+  padding:2px 9px;
+  border-radius:var(--radius-pill);
+  white-space:nowrap;
+}
+.badge.wait{background:var(--warning-soft);color:var(--amber-deep)}
+.badge.sign{background:var(--coral-soft);color:var(--coral-deep)}
+.badge.doing{background:var(--teal-soft);color:var(--teal-deep)}
+.badge.done{background:var(--success-soft);color:var(--green-deep)}
+.badge.fail{background:var(--danger-soft);color:var(--red-deep)}
+.badge.pause{background:var(--warning-soft);color:var(--amber-deep)}
+
+/* ===== 通用按钮 ===== */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:8px 14px;
+  border-radius:var(--radius-s);
+  font-size:var(--fs-13);
+  font-weight:500;
+  background:var(--surface-solid);
+  border:1px solid var(--line-2);
+  color:var(--ink);
+  transition:background var(--dur) var(--ease),border-color var(--dur) var(--ease),color var(--dur) var(--ease),transform var(--dur) var(--ease);
+}
+.btn:hover{background:var(--white);border-color:var(--line-dash)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{background:var(--surface-hover);color:var(--ink)}
+.btn.pri{background:linear-gradient(135deg,var(--coral),var(--coral-hover));color:var(--ink);font-weight:600;border-color:transparent}
+.btn.pri:hover{filter:brightness(1.04)}
+.btn.dng{color:var(--red-deep);border-color:rgba(239,68,68,.25);background:var(--danger-soft)}
+.btn.dng:hover{background:rgba(239,68,68,.2)}
+.btn:disabled,.btn[disabled]{
+  opacity:.45;
+  cursor:not-allowed;
+  filter:grayscale(.3);
+  transform:none;
+}
+
+/* ===== 分区标题 ===== */
+.sec-h{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:var(--fs-12);
+  font-weight:700;
+  color:var(--ink-2);
+  letter-spacing:.03em;
+}
+.sec-h .more{margin-left:auto;font-size:var(--fs-12);font-weight:500;color:var(--coral-deep);cursor:pointer}
+
+/* ===== 时间线 ===== */
+.tl{display:flex;flex-direction:column;gap:0}
+.tl .te{display:flex;gap:10px;position:relative;padding-bottom:14px}
+.tl .te:last-child{padding-bottom:0}
+.tl .te .d{
+  width:9px;height:9px;border-radius:50%;
+  background:rgba(92,92,114,.25);
+  margin-top:5px;flex:none;
+  position:relative;z-index:1;
+}
+.tl .te::before{
+  content:"";position:absolute;left:4px;top:12px;bottom:0;
+  width:1px;background:var(--line-dash);
+}
+.tl .te:last-child::before{display:none}
+.tl .te.ok .d{background:var(--coral)}
+.tl .te.now .d{background:var(--teal)}
+.tl .te .tt{font-size:var(--fs-13);font-weight:600}
+.tl .te .tm{font-size:var(--fs-12);color:var(--muted)}
+
+/* ===== 附件条 ===== */
+.att{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;
+  border-radius:var(--radius-s);
+  background:var(--surface-solid);
+  border:1px solid var(--line);
+  font-size:var(--fs-12);
+}
+.att .fn{
+  width:34px;height:26px;border-radius:var(--radius-xs);
+  display:grid;place-items:center;
+  font-size:var(--fs-12);font-weight:700;
+  background:var(--lavender-soft);color:var(--violet-deep);
+}
+.att .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.att .sz{color:var(--muted)}
+
+/* ===== 空态（内联）===== */
+.empty-inline{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;padding:var(--sp-8) var(--sp-4);
+  color:var(--muted);text-align:center;font-size:var(--fs-12);
+}
+.empty-inline .t{font-size:var(--fs-13);font-weight:600;color:var(--ink-2)}

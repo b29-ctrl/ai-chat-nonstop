@@ -1,0 +1,34 @@
+# 运行时数据（台账、日志、附件、截图），每个使用者本机自动生成
+数据/
+巡检/
+交付_*/
+__pycache__/
+*.pyc
+*.pyo
+
+# 日志与数据库
+*.log
+*.log.*
+*.sqlite3
+*.sqlite3-journal
+
+# 本地配置：含 API Key / 本机绝对路径，绝不入库
+配置.json
+配置.json.bak
+配置.json.bak-*
+配置.json.bak.*
+
+# 备份与临时产物
+*.bak
+*.bak-*
+*.bak.*
+_任务备份_*/
+_改前备份_*/
+_移动与改名备份_*/
+~$*
+*.tmp
+
+# macOS / Windows 系统垃圾
+.DS_Store
+Thumbs.db
+desktop.ini

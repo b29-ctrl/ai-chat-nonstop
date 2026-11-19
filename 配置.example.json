@@ -1,0 +1,66 @@
+{
+  "app": { "title": "AI聊不停", "version": "0.6.0" },
+  "paths": {
+    "project": "~/项目目录",
+    "workbuddy_key": "~/.ai-chat-nonstop/workbuddy_key.txt",
+    "coze_token": "~/.ai-chat-nonstop/coze_token.txt",
+    "workbuddy_cli": "",
+    "node": "node",
+    "dsh_cli": "",
+    "codex_cli": "",
+    "codex_home": "~/.codex"
+  },
+  "adapters": {
+    "demo": { "type": "demo", "enabled": true, "label": "演示（无需 Key）" },
+    "workbuddy": {
+      "type": "workbuddy",
+      "enabled": false,
+      "label": "WorkBuddy（构建/排查）",
+      "timeout_s": 180,
+      "max_turns": 6,
+      "default_model": "hy4free"
+    },
+    "coze": {
+      "type": "coze",
+      "enabled": false,
+      "label": "COZE（评审/回报）",
+      "bot_id": "7706434416947757090",
+      "user_id": "dsh-scheduler",
+      "timeout_s": 120
+    },
+    "openai-compat": {
+      "type": "openai",
+      "enabled": false,
+      "label": "OpenAI 兼容 API（示例）",
+      "base_url": "https://api.openai.com/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "model": "gpt-4o-mini",
+      "models": [
+        { "id": "gpt-4o-mini", "name": "GPT-4o mini" },
+        { "id": "gpt-4o", "name": "GPT-4o" }
+      ],
+      "timeout_s": 180
+    },
+    "a2a-agent": {
+      "type": "a2a",
+      "enabled": false,
+      "label": "A2A Agent（示例）",
+      "url": "http://127.0.0.1:9999/a2a",
+      "timeout_s": 300
+    },
+    "webhook-bot": {
+      "type": "webhook",
+      "enabled": false,
+      "label": "Webhook Bot（示例）",
+      "url": "http://127.0.0.1:9998/hook",
+      "timeout_s": 180
+    },
+    "pull-client": {
+      "type": "pull",
+      "enabled": false,
+      "label": "拉取型客户端（示例）",
+      "outbox": "~/工单调度台/发件箱",
+      "reply_dir": "~/工单调度台/回执"
+    }
+  }
+}
